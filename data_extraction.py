@@ -22,11 +22,7 @@ class DataExtractor:
         #print(self.df_legacy_users)
         return self.df_legacy_users
 
-    def retrieve_pdf_data(self):
-        self.df_card_details = tabula.read_pdf('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf', pages = [1,2,3])
-        #tabula.convert_into('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf', 'output.csv', output_format = 'csv', pages = 'all')
-        print(self.df_card_details)
-        return self.df_card_details
+
 
 
 

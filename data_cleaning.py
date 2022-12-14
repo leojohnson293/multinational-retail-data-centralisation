@@ -25,8 +25,7 @@ class DataClean:
                  df_lu.drop(x, inplace = True)
         return df_lu
 
-    def clean_card_data(self):
-        print(df_cd['Unnamed: 0'])
+
 
 
 
