@@ -5,8 +5,6 @@ from sqlalchemy import create_engine as ce
 from sqlalchemy import inspect
 
 
-
-
 class DatabaseConnector:
     def __init__(self):
         self.yaml = r'C:\Users\acer laptop\Desktop\AiCore\multinational-retail-data-centralisation\db_creds.yaml'
@@ -30,17 +28,18 @@ class DatabaseConnector:
         self.inspector = inspect(self.engine)
         print(self.inspector.get_table_names())
 
-    # def upload_to_db(self):
-    #     from data_cleaning import DataClean
-    #     db_clean = DataClean()
-    #     clean_user = db_clean.clean_user_data()
-    #     clean_user.to_sql('legacy_users', self.engine, if_exists='replace')
+    def upload_to_db(self, db_clean):
+        self.local_type ='postgresql'
+        self.local_api ='psycopg2'
+        self.local_host = 'localhost'
+        self.local_password = 'password'
+        self.local_user = 'postgres'
+        self.local_database = 'Sales_Data'
+        self.local_port = '5432'
+        self.tosql = ce(f"{self.local_type}+{self.local_api}://{self.local_user}:{self.local_password}@{self.local_host}:{self.local_port}/{self.local_database}")
+        # db_clean.to_sql('dim_products',self.tosql, if_exists = 'replace')
+        db_clean.to_sql('order_table',self.tosql, if_exists = 'replace')
 
 
-
-# ins = DatabaseConnector()
-# ins.init_db_engine()
-# ins.list_db_tables()
-# ins.upload_to_db()
 
 
