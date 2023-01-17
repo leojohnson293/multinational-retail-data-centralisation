@@ -53,7 +53,7 @@ class DataExtractor:
 
 
     def extract_from_s3(self):
-        client = boto3.client('s3', aws_access_key_id = 'AKIASSWMGXCCUKRCLWJE', aws_secret_access_key = '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' )
+        client = boto3.client('s3')
         csv_object = client.get_object(Bucket = 'data-handling-public', Key = 'products.csv' )['Body']
         csv_object = csv_object.read().decode('utf-8')
         from io import StringIO
@@ -64,7 +64,7 @@ class DataExtractor:
 
 
     def extract_json_data(self):
-        client = boto3.client('s3', aws_access_key_id = 'AKIASSWMGXCCUKRCLWJE', aws_secret_access_key = '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' )
+        client = boto3.client('s3')
         json_object = client.get_object(Bucket = 'data-handling-public', Key = 'date_details.json' )['Body']
         json_object = json_object.read().decode('utf-8')
         from io import StringIO
