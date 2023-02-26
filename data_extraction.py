@@ -9,6 +9,7 @@ import tabula
 import requests
 import json
 import boto3
+import yaml
 
 
 class DataExtractor: 
@@ -20,15 +21,18 @@ class DataExtractor:
         self.df_legacy_users = None
         self.pdf ='https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
         self.store_header = {'x-api-key':'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
+        keys = r'C:\Users\acer laptop\Desktop\AiCore\leo_accessKeys.yaml'
+        with open(keys) as f:
+            self.aws_keys = yaml.safe_load(f)
 
     def read_RDS_data(self):
         self.orders_table = self.engine.execute('''SELECT * FROM orders_table''').fetchall()
         #print(self.orders_table)
         return self.orders_table
 
-    def extract_users_table(self):
+    def extract_RDS_table(self):
         self.df_orders_table =pd.read_sql_table('orders_table', self.engine)
-        print(self.df_orders_table.head())
+       # print(self.df_orders_table.head())
         return self.df_orders_table
 
     def retrieve_pdf_data(self):
@@ -53,7 +57,7 @@ class DataExtractor:
 
 
     def extract_from_s3(self):
-        client = boto3.client('s3')
+        client = boto3.client('s3',aws_access_key_id= self.aws_keys['Access key ID'], aws_secret_access_key=self.aws_keys['Secret access key'])
         csv_object = client.get_object(Bucket = 'data-handling-public', Key = 'products.csv' )['Body']
         csv_object = csv_object.read().decode('utf-8')
         from io import StringIO
@@ -62,9 +66,8 @@ class DataExtractor:
 
         #print((self.df_product_details))
 
-
     def extract_json_data(self):
-        client = boto3.client('s3')
+        client = boto3.client('s3',aws_access_key_id=self.aws_keys['Access key ID'], aws_secret_access_key=self.aws_keys['Secret access key'])
         json_object = client.get_object(Bucket = 'data-handling-public', Key = 'date_details.json' )['Body']
         json_object = json_object.read().decode('utf-8')
         from io import StringIO
@@ -74,9 +77,9 @@ class DataExtractor:
         return df_date_details
 
 
-if __name__ == '__main__':
-    ins = DataExtractor()
-    ins.extract_json_data()
+# if __name__ == '__main__':
+#     ins = DataExtractor()
+#     ins.extract_json_data()
                                 
     
 

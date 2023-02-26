@@ -10,7 +10,6 @@ class DatabaseConnector:
         self.yaml = r'C:\Users\acer laptop\Desktop\AiCore\multinational-retail-data-centralisation\db_creds.yaml'
         with open(self.yaml) as f:
             self.read_db_creds = yaml.safe_load(f)
-        # print(self.read_db_creds)  
         
     
     def init_db_engine(self):
@@ -22,7 +21,7 @@ class DatabaseConnector:
         self.db_database = self.read_db_creds['RDS_DATABASE']
         self.db_port = self.read_db_creds['RDS_PORT']
         self.engine = ce(f"{self.db_type}+{self.db_api}://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_database}")
-        return self.engine
+        return self.engine#
 
     def list_db_tables(self):
         self.inspector = inspect(self.engine)
