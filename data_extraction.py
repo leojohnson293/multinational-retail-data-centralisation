@@ -20,7 +20,6 @@ class DataExtractor:
         self.legacy_users = None
         self.df_legacy_users = None
         self.pdf ='https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
-        self.store_header = {'x-api-key':'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
         keys = r'C:\Users\acer laptop\Desktop\AiCore\leo_accessKeys.yaml'
         with open(keys) as f:
             self.aws_keys = yaml.safe_load(f)
