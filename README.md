@@ -268,19 +268,32 @@ GROUP BY dim_store_details.store_type
 ORDER BY COUNT(*) * 100 / SUM(COUNT(*)) over() DESC
 ```
 ### _Which month in each year produced the most sales?_
-This query below shows the total_sales for each month for each year, which can be used to find the month with the highest sales for a year. For example, in this query it can be seen that in 2022, the highest sales were obtained in April whereas in 2021, it was obtained in November. The query follows a similiar method to the previous ones. As its uses the total sales found using the orders table joined to the products table and is also joined to the the date table to get the 'year' and 'month' columns to group by them. 
+This query below shows which month of each year had the highest sales. In this query it can be seen that in 2022, the highest sales were obtained in April whereas in 2021, it was obtained in November. The query uses the `WITH` clause to create two auxillary statements. The first statement is `sales` which will find the total sales using the `SUM` aggregration, per year and month, by joing the orders table with the products table and the date table. The second auxillary statement called `sales_per_year`, which use the `MAX` aggregration to find the highest total sales in each year in a column called `max_sales`. Finally, outside of the `WITH` clause, a new statement is created to join both auxillary statements, to create a table to show the months in which the highest sales occur in each year.
  ```SQL
-SELECT ROUND(SUM(product_quantity * dim_products."product_price(£)") :: numeric, 2 ) AS total_sales, dim_date_details.year,dim_date_details.month
+WITH sales AS
+(SELECT ROUND(SUM(product_quantity * dim_products."product_price(£)") :: numeric, 2 ) AS total_sales, dim_date_details.year AS year,dim_date_details.month AS month
 FROM order_table 
-JOIN dim_products
+LEFT JOIN dim_products
 ON dim_products.product_code = order_table.product_code
-JOIN dim_date_details
+RIGHT JOIN dim_date_details
 ON dim_date_details.date_uuid = order_table.date_uuid
-GROUP BY dim_date_details.year , dim_date_details.month
-ORDER BY dim_date_details.year DESC
+GROUP BY dim_date_details.year, dim_date_details.month
+)
+
+,sales_per_year AS
+(SELECT  MAX(total_sales) AS max_sales, year  FROM sales 
+GROUP BY year
+ORDER BY  year DESC 
+)
+
+SELECT max_sales, number_of_sales.year, number_of_sales.month FROM sales_per_year
+JOIN number_of_sales
+ON sales_per_year.max_sales = number_of_sales.total_sales
+ORDER BY  year DESC
  ```
 ### _What is our staff headcount?_
-This query shows the staff headcount for each country and it can be deduced that Britain has the highest number of staff. It uses `SUM` to add up the staff numbers for each country with `GROUP BY`. Then, some stores have 'N/A' has their country code due to the store no being based in a country as it's online. So the `CASE` function is used to change the store code from 'N/A' to 'WEB', 
+This query shows the staff headcount for each country and it can be deduced that Britain has the highest number of staff. It uses `SUM` to add up the staff numbers for each country with `GROUP BY`. Then, some stores have 'N/A' has their country code due to the store no being based in a country as it's online. So the `CASE` function is used to change the store code from 'N/A' to 'WEB'.
+
  ```SQL
 SELECT SUM(staff_numbers) AS total_staff_numbers,
 CASE country_code WHEN 'N/A' Then 'WEB' ELSE country_code  END AS country_code
