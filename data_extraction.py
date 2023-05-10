@@ -76,9 +76,9 @@ class DataExtractor:
         return df_date_details
 
 
-# if __name__ == '__main__':
-#     ins = DataExtractor()
-#     ins.extract_json_data()
+if __name__ == '__main__':
+    ins = DataExtractor()
+    ins.list_number_of_stores()
                                 
     
 

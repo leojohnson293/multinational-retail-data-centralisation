@@ -1,5 +1,5 @@
 # ***Multinational Retail Data Centralisation***
-> This project involes being part of a multinational company whose sales data is spread across different sources. Here, the data will be extracted from those sources, cleaned using the pandas library and sent to a PostgreSQL database to be queried.
+> This project involes being part of a multinational company whose sales data is spread across different sources. Here, the data will be extracted from those sources, cleaned using the Pandas library and sent to a PostgreSQL database to be queried.
 
 ## ***Project Summary***
 The extraction of the tables of data from different sources which is then cleaned and sent to a database follows the ETL(Extract, Transform and Load) principle used in data pipelines. This process will take place using three different scripts which are in the repository. They are the database_utils.py, data_extraction.py and data_cleaning.py files. The database_utils.py file will connect to an AWS RDS database to extract some of the tables in the data_extraction.py file and send the cleaned data from the data_cleaning.py file to the SQL database. The data_extraction.py file will be extracting the data from the various sources and will be send them to the data_cleaning.py file to be cleaned and ready to be sent to PostgreSQL. When all the cleaned data are in SQL, the data types for each column will be changed to the correct ones so they can be queried to answer business questions.
@@ -66,7 +66,7 @@ class DataExtractor:
         return self.df_orders_table
 ```
 ### _Extract from PDF_
-The next set of data that needed to be extracte was the card details of the payments for each order inside a PDF file  which is initialized in the `__init__` method as `self.pdf` in the code above. This extraction will be done using the tabula python library. As seen in the code below, tabula reads the pdf and uses `convert_into` function to take the pdf and converts it to a csv file called 'output.csv'. Then that csv file is edited and cleaned up to ensure it includes all rows of the pdf file, as some are split between pages and would create a formatting error when trying to read it using pandas. Once fully cleaned, the csv file is renamed to 'new_output.csv' and is read by pandas using the `read_csv` function as seen in the code below.
+The next set of data that needed to be extracte was the card details of the payments for each order inside a PDF file  which is initialized in the `__init__` method as `self.pdf` in the code above. This extraction will be done using the tabula python library. As seen in the code below, tabula reads the pdf and uses `convert_into` function to take the pdf and converts it to a csv file called 'output.csv'. Then that csv file is edited and cleaned up to ensure it includes all rows of the pdf file, as some are split between pages and would create a formatting error when trying to read it using Pandas. Once fully cleaned, the csv file is renamed to 'new_output.csv' and is read by Pandas using the `read_csv` function as seen in the code below.
 ```python
 import tabula
 
@@ -77,7 +77,7 @@ import tabula
         return self.pd_card_details
 ```
 ### _Extract from RestfulAPI_
-After that, the data for all the stores had to be extracted from an API. Here, `requests.get` is used to access an API endpoint using the headers which are the keys to it and is initialized when running the code in the `__init__` method as `self.store_header` (but aren't included here due to security reasons). Here two methods are created. The first method `list_number_of_stores` returns the number of stores in the business. This will then be used in the second method which is the `retrieve_stores_data` method, to run a for-loop through the second endpoint to get the data for each store in a dictionary format. Each dictionary will be appended to an empty list and made into a pandas dataframe.
+After that, the data for all the stores had to be extracted from an API. Here, `requests.get` is used to access an API endpoint using the headers which are the keys to it and is initialized when running the code in the `__init__` method as `self.store_header` (but aren't included here due to security reasons). Here two methods are created. The first method `list_number_of_stores` returns the number of stores in the business. This will then be used in the second method which is the `retrieve_stores_data` method, to run a for-loop through the second endpoint to get the data for each store in a dictionary format. Each dictionary will be appended to an empty list and made into a Pandas DataFrame.
 ```python
     def list_number_of_stores(self):
         number_of_stores = requests.get('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', headers = self.store_header)
@@ -95,7 +95,7 @@ After that, the data for all the stores had to be extracted from an API. Here, `
 ```
 
 ### _Extract from AWS S3_
-The final location where the data needs to extracted is from an AWS S3 bucket. The code below shows the csv file of the products table extracted from an S3 bucket. In this scenario, the boto3 library will be used to access it. First, the S3 client is created using `boto3.client`, the access key ID and secret access key for the IAM role for access from a dictionary initialized in the `__init__` method called `self.aws_keys`, were given as arguements. The csv file from the bucket is then decoded and used to create a pandas dataframe as seen in th ecode below.
+The final location where the data needs to extracted is from an AWS S3 bucket. The code below shows the csv file of the products table extracted from an S3 bucket. In this scenario, the boto3 library will be used to access it. First, the S3 client is created using `boto3.client`, the access key ID and secret access key for the IAM role for access from a dictionary initialized in the `__init__` method called `self.aws_keys`, were given as arguements. The csv file from the bucket is then decoded and used to create a Pandas DataFrame as seen in th ecode below.
 ```python
     def extract_from_s3(self):
         client = boto3.client('s3',aws_access_key_id= self.aws_keys['Access key ID'], aws_secret_access_key=self.aws_keys['Secret access key'])
@@ -108,7 +108,7 @@ The final location where the data needs to extracted is from an AWS S3 bucket. T
 
 ---
 ## ***Data Cleaning***
-> After extracting each table from the various data soruces, the tables had to be cleaned using the pandas library in the data_cleaning.py file.
+> After extracting each table from the various data soruces, the tables had to be cleaned using the Pandas library in the data_cleaning.py file.
 
 In the data_cleaning.py file, the `DataExtractor` class is imported from the data_extraction.py file and the `DataClean` class is created. In the `__init__` method of the `DataClean` class, each of the tables that were extracted in the `DataExtractor` class are initialised as attributes as seen below.
 
@@ -122,7 +122,7 @@ class DataClean:
         self.df_prod = db_ext.extract_from_s3() # gets the product table
         self.df_date = db_ext.extract_json_data() # gets the date table
 ```
-Then in the subsequent methods of the `DataClean` class, the tables were cleaned using the pandas library. Below is the `clean_store_data` method, which is used to clean the store details table. In the method `str.replace` is used to remove any unwanted values inside a columns which in this case is used for the 'continent' and 'staff_numbers' columns.  Then the pandas function `pd.to_datetime`is used to ensure all values in the 'opening_date' column are in a date format. For example, a variable in that column may appear as a string such as '20 October 2015', so `pd.to_datetime` will convert it to '2015/10/20', so it can be used in date-related queries in SQL. Finally a for-loop is created to iterate over the columns to drop any rows using the `drop` function from pandas. This is done using an if statement to select the rows to be dropped using the abnormal variables that don't fit in the columns as conditions. This process is repeated for the other tables.
+Then in the subsequent methods of the `DataClean` class, the tables were cleaned using the Pandas library. Below is the `clean_store_data` method, which is used to clean the store details table. In the method `str.replace` is used to remove any unwanted values inside a columns which in this case is used for the 'continent' and 'staff_numbers' columns.  Then the Pandas function `pd.to_datetime`is used to ensure all values in the 'opening_date' column are in a date format. For example, a variable in that column may appear as a string such as '20 October 2015', so `pd.to_datetime` will convert it to '2015/10/20', so it can be used in date-related queries in SQL. Finally a for-loop is created to iterate over the columns to drop any rows using the `drop` function from Pandas. This is done using an if statement to select the rows to be dropped using the abnormal variables that don't fit in the columns as conditions. This process is repeated for the other tables.
 ```python
     # Cleaning of the legacy store details table 
     def clean_store_data(self):
@@ -133,7 +133,7 @@ Then in the subsequent methods of the `DataClean` class, the tables were cleaned
             if self.df_lsd.loc[row, 'lat'] != None and self.df_lsd.loc[row, 'store_type'] != 'Web Portal':
                 self.df_lsd.drop(row, inplace = True)
        
-        print(self.df_lsd.head()) #prints the top 5 rows of the dataframe
+        print(self.df_lsd.head()) #prints the top 5 rows of the DataFrame
         return self.df_lsd
 ```
 
@@ -141,7 +141,7 @@ Then in the subsequent methods of the `DataClean` class, the tables were cleaned
 ## ***Sending to PostgreSQL***
 > Here the cleaned tables will be sent to the PostgreSQL database using SQLAlchemy and the code for it is ran from the main.py file.
 
-This stage is where the cleaned data from the `DataClean` class in the data_cleaning.py file is sent to the PostgreSQL database. In the database_utils.py file, the following `upload_to_db` method is created in the `DatabaseConnector` class. This method will send the cleaned dataframe (which it takes as an arguement) to the local PostgreSQL database where it can be accessed using pgadmin4 using SQLAlchemy. Here the `to_sql` function from SQLAlchemy will be used to send the dataframe to PostgreSQL. The arguements given to this function in respective order are the name of the table, the engine to the local PostgreSQL server defined in the line before as `self.tosql` and finally, the configuration `if_exists` set to "replace" so that if the table needs to re-uploaded to PostgreSQL then the new table will overwrite the old table.
+This stage is where the cleaned data from the `DataClean` class in the data_cleaning.py file is sent to the PostgreSQL database. In the database_utils.py file, the following `upload_to_db` method is created in the `DatabaseConnector` class. This method will send the cleaned DataFrame (which it takes as an arguement) to the local PostgreSQL database where it can be accessed using pgadmin4 using SQLAlchemy. Here the `to_sql` function from SQLAlchemy will be used to send the DataFrame to PostgreSQL. The arguements given to this function in respective order are the name of the table, the engine to the local PostgreSQL server defined in the line before as `self.tosql` and finally, the configuration `if_exists` set to "replace" so that if the table needs to re-uploaded to PostgreSQL then the new table will overwrite the old table.
 ```python
     def upload_to_db(self, db_clean):
         self.local_type ='postgresql'
@@ -155,9 +155,9 @@ This stage is where the cleaned data from the `DataClean` class in the data_clea
         db_clean.to_sql('order_table',self.tosql, if_exists = 'replace')
 ```
 
-However, if the `DataClean` class is imported to the database_utils.py file and the code above to send the dataframe to PostgreSQL is run on this file, this will create a circular import error. This is due to the fact that the database_utils.py file will export it's class to the data_extraction.py file which will then export it's own class to the data_cleaning.py file which will also export it's class back to the database_utils.py, thus creating a loop of imports. To the avoid, the `upload_to_db` method is run on the different file called main.py.
+However, if the `DataClean` class is imported to the database_utils.py file and the code above to send the DataFrame to PostgreSQL is run on this file, this will create a circular import error. This is due to the fact that the database_utils.py file will export it's class to the data_extraction.py file which will then export it's own class to the data_cleaning.py file which will also export it's class back to the database_utils.py, thus creating a loop of imports. To the avoid, the `upload_to_db` method is run on the different file called main.py.
 
-The code below shows the main.py script. Here in this script, the `DatabaseConnector` and the `DataClean` classes are imported from their respective files and the instances of both classes are called. The variable `clean_df` is defined as the method of the `DataClean` class that has returned the respective cleaned dataframe that is to be sent to PostgreSQL. Finally, the `upload_to_db` method of the `DatabaseConnector` will be called, with`clean_df` given to it as an arguement.
+The code below shows the main.py script. Here in this script, the `DatabaseConnector` and the `DataClean` classes are imported from their respective files and the instances of both classes are called. The variable `clean_df` is defined as the method of the `DataClean` class that has returned the respective cleaned DataFrame that is to be sent to PostgreSQL. Finally, the `upload_to_db` method of the `DatabaseConnector` will be called, with`clean_df` given to it as an arguement.
 
 ```python
 from database_utils import DatabaseConnector
