@@ -5,3 +5,4 @@ db_creds.yaml
 *.sql
 .data_extraction.py.swo
 .data_extraction.py.swp
+.main.py.swp
