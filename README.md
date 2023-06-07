@@ -66,7 +66,7 @@ class DataExtractor:
         return self.df_orders_table
 ```
 ### _Extract from PDF_
-The next set of data that needed to be extracte was the card details of the payments for each order inside a PDF file  which is initialized in the `__init__` method as `self.pdf` in the code above. This extraction will be done using the tabula python library. As seen in the code below, tabula reads the pdf and uses `convert_into` function to take the pdf and converts it to a csv file called 'output.csv'. Then that csv file is edited and cleaned up to ensure it includes all rows of the pdf file, as some are split between pages and would create a formatting error when trying to read it using Pandas. Once fully cleaned, the csv file is renamed to 'new_output.csv' and is read by Pandas using the `read_csv` function as seen in the code below.
+The next set of data that needed to be extracted was the card details of the payments for each order inside a PDF file  which is initialized in the `__init__` method as `self.pdf` in the code above. This extraction will be done using the tabula python library. As seen in the code below, tabula reads the pdf and uses `convert_into` function to take the pdf and converts it to a csv file called 'output.csv'. Then that csv file is edited and cleaned up to ensure it includes all rows of the pdf file, as some are split between pages and would create a formatting error when trying to read it using Pandas. Once fully cleaned, the csv file is renamed to 'new_output.csv' and is read by Pandas using the `read_csv` function as seen in the code below.
 ```python
 import tabula
 

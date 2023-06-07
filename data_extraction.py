@@ -51,7 +51,7 @@ class DataExtractor:
             self.stores = (self.stores.json())
             all_stores.append(self.stores)
         self.df_stores = pd.DataFrame(all_stores, index = range(0, (len(all_stores))))
-        #print(self.df_stores)
+        print(self.df_stores)
         return self.df_stores
 
 
@@ -78,7 +78,7 @@ class DataExtractor:
 
 if __name__ == '__main__':
     ins = DataExtractor()
-    ins.list_number_of_stores()
+    ins.retrieve_pdf_data()
                                 
     
 
