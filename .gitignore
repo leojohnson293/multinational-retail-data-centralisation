@@ -3,5 +3,5 @@ queries
 *.csv
 db_creds.yaml
 *.sql
-*.swo
-*.swp
+.data_extraction.py.swo
+.data_extraction.py.swp
