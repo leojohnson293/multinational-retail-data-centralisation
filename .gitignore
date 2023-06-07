@@ -3,3 +3,5 @@ queries
 *.csv
 db_creds.yaml
 *.sql
+*.swo
+*.swp
